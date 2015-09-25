@@ -1,0 +1,18 @@
+-- Running on 1 threads.
+Finished in 41.7186 seconds.
+Result: 4.2824588148618563
+-- Running on 2 threads.
+Finished in 21.1148 seconds.
+Result: 4.2824588148619638
+-- Running on 4 threads.
+Finished in 10.8172 seconds.
+Result: 4.2824588148615499
+-- Running on 8 threads.
+Finished in 5.7838 seconds.
+Result: 4.2824588148615916
+-- Running on 16 threads.
+Finished in 3.0841 seconds.
+Result: 4.2824588148616716
+-- Running on 32 threads.
+Finished in 2.3235 seconds.
+Result: 4.2824588148616778
