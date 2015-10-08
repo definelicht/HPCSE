@@ -13,7 +13,8 @@ public:
 
 private:
 
-  int nThreads_, threadsLeft_, step_;
+  int nThreads_, threadsLeft_;
+  bool step_{true};
   std::mutex mutex_{};
   std::condition_variable cv_{};
 
@@ -26,13 +27,13 @@ void Barrier::Synchronize() {
   std::unique_lock<std::mutex> lock(mutex_);
   --threadsLeft_;
   if (threadsLeft_ > 0) {
-    int sleepStep = step_;
+    auto sleepStep = step_;
     do {
       cv_.wait(lock);
-    } while (sleepStep >= step_);
+    } while (sleepStep == step_);
   } else {
-    ++step_;
     threadsLeft_ = nThreads_;
+    step_ = !step_;
     cv_.notify_all();
   }
 }
