@@ -20,8 +20,7 @@ private:
 
 };
 
-Barrier::Barrier(int nThreads)
-    : nThreads_(nThreads), threadsLeft_(nThreads), step_(0) {}
+Barrier::Barrier(int nThreads) : nThreads_(nThreads), threadsLeft_(nThreads) {}
 
 void Barrier::Synchronize() {
   std::unique_lock<std::mutex> lock(mutex_);
