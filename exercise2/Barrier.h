@@ -9,33 +9,30 @@ public:
   
   inline Barrier(int nThreads);
 
-  inline void Synchronize(int step);
+  inline void Synchronize();
 
 private:
 
   int nThreads_, threadsLeft_, step_;
   std::mutex mutex_{};
-  std::condition_variable cvSync_{}, cvAhead_{};
+  std::condition_variable cv_{};
 
 };
 
 Barrier::Barrier(int nThreads)
     : nThreads_(nThreads), threadsLeft_(nThreads), step_(0) {}
 
-void Barrier::Synchronize(int step) {
+void Barrier::Synchronize() {
   std::unique_lock<std::mutex> lock(mutex_);
-  while (step > step_) {
-    cvAhead_.wait(lock);
-  }
   --threadsLeft_;
   if (threadsLeft_ > 0) {
+    int sleepStep = step_;
     do {
-      cvSync_.wait(lock);
-    } while (step >= step_);
+      cv_.wait(lock);
+    } while (sleepStep >= step_);
   } else {
     ++step_;
     threadsLeft_ = nThreads_;
-    cvSync_.notify_all();
-    cvAhead_.notify_all();
+    cv_.notify_all();
   }
 }

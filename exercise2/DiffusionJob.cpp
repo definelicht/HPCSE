@@ -27,7 +27,6 @@ std::vector<Grid_t> DiffusionJob::RunDiffusion(
   auto outputItr = output.begin();
   float ds = 2./grid_[0].size();
   const float factor = dt/(ds*ds);
-  int step = 0;
   const int iEnd = grid_.size()-1;
   const int jEnd = grid_[0].size()-1;
   while (true) {
@@ -66,10 +65,10 @@ std::vector<Grid_t> DiffusionJob::RunDiffusion(
     }
     t += dt;
     // Synchronize before swapping frame buffer
-    barrier.Synchronize(step++);
+    barrier.Synchronize();
     grid_.swap(buffer_);
     // Synchronize again to make sure all swaps have happened
-    barrier.Synchronize(step++);
+    barrier.Synchronize();
   }
   return output;
 }
