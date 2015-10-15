@@ -37,9 +37,10 @@ import ycm_core
 flags = [
 '-Wall',
 '-Wextra',
+'-Weffc++',
 '-std=c++17',
 '-x',
-'clang++',
+'c++',
 '-isystem',
 '../BoostParts',
 '-isystem',
@@ -48,7 +49,7 @@ flags = [
 '-isystem',
 '../llvm/tools/clang/include',
 '-I',
-'./include/',
+'.',
 '-I',
 './riemann/include/',
 '-I',
@@ -63,6 +64,8 @@ flags = [
 './tests/gmock',
 '-isystem',
 './tests/gmock/include',
+'-I/opt/opencv/install/3.0.0/include',
+'-Iinclude/'
 ]
 
 compilation_database_folder = ''
