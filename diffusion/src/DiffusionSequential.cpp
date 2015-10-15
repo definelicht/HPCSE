@@ -1,7 +1,7 @@
 /// \author Johannes de Fine Licht (definelj@student.ethz.ch)
 /// \date October 2015
 
-#include "diffusion/DiffusionSequential.h"
+#include "diffusion/Diffusion.h"
 
 namespace hpcse {
 

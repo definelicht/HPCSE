@@ -2,8 +2,6 @@
 /// \date October 2015
 
 #include "diffusion/Diffusion.h"
-#include "diffusion/DiffusionSequential.h"
-#include "diffusion/DiffusionParallel.h"
 
 #include <algorithm> // std::sort
 #include <cassert>
@@ -18,10 +16,10 @@ using namespace hpcse;
 
 int main(int argc, char const *argv[]) {
   if (argc < 7) {
-    std::cerr
-        << "Usage: <cores> <diffusion constant> <grid dimension> <timestep> <output file> <time for "
-           "snapshot...>"
-        << std::endl;
+    std::cerr << "Usage: <cores> <diffusion constant> <grid dimension> "
+                 "<timestep> <output file> <time for "
+                 "snapshot...>"
+              << std::endl;
     return 1;
   }
   unsigned nCores = std::stoi(argv[1]);
@@ -39,8 +37,7 @@ int main(int argc, char const *argv[]) {
             << " grid with timestep " << dt << " for "
             << *(snapshots.cend() - 1) / dt << " iterations...\n";
   auto start = std::chrono::system_clock::now();
-  auto results = nCores > 1 ? DiffusionParallel(nCores, dim, d, dt, snapshots)
-                            : DiffusionSequential(dim, d, dt, snapshots);
+  auto results = Diffusion(nCores, dim, d, dt, snapshots);
   auto elapsed = 1e-6 *
                  std::chrono::duration_cast<std::chrono::microseconds>(
                      std::chrono::system_clock::now() - start)

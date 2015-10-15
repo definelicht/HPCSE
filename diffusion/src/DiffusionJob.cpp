@@ -1,7 +1,7 @@
 /// \author Johannes de Fine Licht (definelj@student.ethz.ch)
 /// \date October 2015
 
-#include "diffusion/DiffusionJob.h"
+#include "DiffusionJob.h"
 
 namespace hpcse {
 

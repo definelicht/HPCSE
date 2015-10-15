@@ -3,6 +3,7 @@ project(hpcse_diffusion)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(DIFFUSION_SRC 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Diffusion.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/DiffusionJob.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/DiffusionParallel.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/DiffusionSequential.cpp)
