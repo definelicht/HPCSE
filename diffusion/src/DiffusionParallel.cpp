@@ -14,7 +14,8 @@ namespace hpcse {
 std::shared_ptr<DiffusionJob>
 DiffusionAllocate(unsigned cols, unsigned rowBegin, unsigned rowEnd);
 
-std::vector<Grid_t> DiffusionParallel(unsigned nCores, unsigned dim, float dt,
+std::vector<Grid_t> DiffusionParallel(unsigned nCores, unsigned dim, float d,
+                                      float dt,
                                       std::vector<float> const &snapshots) {
   unsigned rowsPerCore = dim / nCores;
   std::vector<std::shared_ptr<DiffusionJob>> workers;
@@ -38,10 +39,10 @@ std::vector<Grid_t> DiffusionParallel(unsigned nCores, unsigned dim, float dt,
     for (unsigned i = 0; i < nCores; ++i) {
       futures.emplace_back(std::async(
           std::launch::async,
-          [dt, &snapshots, &barrier](std::shared_ptr<DiffusionJob> job,
-                                     std::shared_ptr<DiffusionJob> above,
-                                     std::shared_ptr<DiffusionJob> below) {
-            return job->RunDiffusion(above, below, dt, snapshots, barrier);
+          [d, dt, &snapshots, &barrier](std::shared_ptr<DiffusionJob> job,
+                                        std::shared_ptr<DiffusionJob> above,
+                                        std::shared_ptr<DiffusionJob> below) {
+            return job->RunDiffusion(above, below, d, dt, snapshots, barrier);
           },
           workers[i], i > 0 ? workers[i - 1] : nullptr,
           i < nCores - 1 ? workers[i + 1] : nullptr));

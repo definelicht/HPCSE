@@ -22,7 +22,7 @@ DiffusionJob::DiffusionJob(const unsigned rows, const unsigned cols,
 
 std::vector<Grid_t> DiffusionJob::RunDiffusion(
     const std::shared_ptr<DiffusionJob> above,
-    const std::shared_ptr<DiffusionJob> below, const float dt,
+    const std::shared_ptr<DiffusionJob> below, const float d, const float dt,
     const std::vector<float> snapshots, Barrier &barrier) {
   std::vector<Grid_t> output(
       snapshots.size(), Grid_t(grid_.size(), Row_t(grid_[0].size())));
@@ -31,7 +31,7 @@ std::vector<Grid_t> DiffusionJob::RunDiffusion(
   auto snapshotEnd = snapshots.cend();
   auto outputItr = output.begin();
   float ds = 2./grid_[0].size();
-  const float factor = dt/(ds*ds);
+  const float factor = d*dt/(ds*ds);
   const int iEnd = grid_.size()-1;
   const int jEnd = grid_[0].size()-1;
   while (true) {

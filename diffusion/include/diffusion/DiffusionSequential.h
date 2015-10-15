@@ -8,7 +8,7 @@
 
 namespace hpcse {
 
-std::vector<Grid_t> DiffusionSequential(unsigned dim, const float dt,
+std::vector<Grid_t> DiffusionSequential(unsigned dim, float d, float dt,
                                         std::vector<float> const &snapshots);
 
 } // End namespace hpcse

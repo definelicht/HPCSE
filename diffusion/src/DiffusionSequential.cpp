@@ -9,14 +9,15 @@ Grid_t InitializeGrid(const unsigned dim);
 
 void Diffuse(const float factor, Grid_t const &grid, Grid_t &buffer);
 
-std::vector<Grid_t> DiffusionSequential(unsigned dim, const float dt,
+std::vector<Grid_t> DiffusionSequential(unsigned dim, const float d,
+                                        const float dt,
                                         std::vector<float> const &snapshots) {
   auto grid = InitializeGrid(dim);
   std::vector<Grid_t> output(
       snapshots.size(), Grid_t(grid.size(), Grid_t::value_type(grid.size())));
   float t = 0;
   float ds = 2./dim;
-  const float factor = dt/(ds*ds);
+  const float factor = d*dt/(ds*ds);
   auto snapshotItr = snapshots.cbegin();
   auto snapshotEnd = snapshots.cend();
   auto outputItr = output.begin();

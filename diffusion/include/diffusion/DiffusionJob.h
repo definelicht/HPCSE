@@ -18,7 +18,7 @@ public:
   inline Row_t const &LastRow() const;
 
   std::vector<Grid_t> RunDiffusion(std::shared_ptr<DiffusionJob> above,
-                                   std::shared_ptr<DiffusionJob> below,
+                                   std::shared_ptr<DiffusionJob> below, float d,
                                    float dt, std::vector<float> snapshots,
                                    Barrier &barrier);
 

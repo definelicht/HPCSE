@@ -8,7 +8,8 @@
 
 namespace hpcse {
 
-std::vector<Grid_t> DiffusionParallel(unsigned nCores, unsigned dim, float dt,
+std::vector<Grid_t> DiffusionParallel(unsigned nCores, unsigned dim, float d,
+                                      float dt,
                                       std::vector<float> const &snapshots);
 
 } // End namespace hpcse
