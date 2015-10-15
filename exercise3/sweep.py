@@ -7,7 +7,7 @@ cores = [1, 2, 4, 6, 8, 12, 16, 24]
 for (dim, dt, end) in grids:
   for c in cores:
       outputStr = str(dim) + "_" + str(c) + ".txt";
-      command = "./RunDiffusion {} {} {} {} {}".format(
+      command = "./RunDiffusion {} 1 {} {} {} {}".format(
           c, dim, dt, outputStr, end)
       # Warmup round
       os.system(command + " >> /dev/null")
