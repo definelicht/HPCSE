@@ -39,6 +39,7 @@ Grid_t InitializeGrid(const unsigned dim) {
   const float halfDim = (dim>>1) - 0.5;
   const float boundSquared = (dim*dim)>>4;
   const int dimSigned = dim;
+  #pragma omp parallel for
   for (int i = 0; i < dimSigned; ++i) {
     float dx = i - halfDim;
     for (int j = 0; j < dimSigned; ++j) {
@@ -50,7 +51,9 @@ Grid_t InitializeGrid(const unsigned dim) {
 }
 
 void Diffuse(const float factor, Grid_t const &grid, Grid_t &buffer) {
-  for (int i = 1, iEnd = grid.size() - 1; i < iEnd; ++i) {
+  const int iEnd = grid.size()-1;
+  #pragma omp parallel for
+  for (int i = 1; i < iEnd; ++i) {
     for (int j = 1; j < iEnd; ++j) {
       buffer[i][j] =
           grid[i][j] +
