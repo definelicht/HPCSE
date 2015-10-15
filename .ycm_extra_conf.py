@@ -38,7 +38,7 @@ flags = [
 '-Wall',
 '-Wextra',
 '-Weffc++',
-'-std=c++17',
+'-std=c++14',
 '-x',
 'c++',
 '-isystem',
