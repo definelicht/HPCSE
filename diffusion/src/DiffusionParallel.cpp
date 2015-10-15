@@ -1,9 +1,15 @@
-#include "Diffusion.h"
+/// \author Johannes de Fine Licht (definelj@student.ethz.ch)
+/// \date October 2015
 
-#include "DiffusionJob.h"
+#include "diffusion/DiffusionParallel.h"
+
 #include <future>
 #include <memory>
 #include <vector>
+#include "diffusion/Diffusion.h"
+#include "diffusion/DiffusionJob.h"
+
+namespace hpcse {
 
 std::shared_ptr<DiffusionJob>
 DiffusionAllocate(unsigned cols, unsigned rowBegin, unsigned rowEnd);
@@ -50,3 +56,5 @@ std::vector<Grid_t> DiffusionParallel(unsigned nCores, unsigned dim, float dt,
   }
   return output;
 }
+
+} // End namespace hpcse

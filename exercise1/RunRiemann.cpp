@@ -4,20 +4,13 @@
 #include <chrono>     // Tools for timing
 #include <cmath>      // std::sqrt, std::log
 #include <functional> // std::function
-#include <future>
 #include <iomanip>    // std::setprecision
 #include <iostream>
 #include <string>     // std::stod, std::stoi
-#include <vector>
 
-// Compile with:
-// c++ RiemannSum.cpp -O3 -std=c++1y -o RiemannSum
+#include "riemann/RiemannSum.h"
 
-double Riemann(std::function<double(double)> const &f, double begin, double end,
-               const int n);
-
-double RiemannParallel(std::function<double(double)> const &f, double begin,
-                       double end, const int n, const int nThreads);
+using namespace hpcse;
 
 int main(int argc, char const *argv[]) {
   if (argc < 5) {
@@ -48,7 +41,7 @@ int main(int argc, char const *argv[]) {
     double elapsed;
     if (nThreads == 1) {
       auto start = std::chrono::system_clock::now();
-      result = Riemann(f, begin, end, n);
+      result = RiemannSequential(f, begin, end, n);
       elapsed = 1e-6 *
                 std::chrono::duration_cast<std::chrono::microseconds>(
                     std::chrono::system_clock::now() - start)
@@ -71,31 +64,4 @@ int main(int argc, char const *argv[]) {
               << "Result: " << std::setprecision(16) << result << "\n";
   }
   return 0;
-}
-
-double Riemann(std::function<double(double)> const &f, double begin, double end,
-               const int n) {
-  const double step = (end - begin) / static_cast<double>(n);
-  double sum = 0;
-  for (int i = 0; i < n; ++i) {
-    sum += f(begin + static_cast<double>(i) * step + 0.5 * step) * step;
-  }
-  return sum;
-}
-
-double RiemannParallel(std::function<double(double)> const &f, double begin,
-                       double end, const int n, const int nThreads) {
-  double threadStep = (end - begin) / static_cast<double>(nThreads);
-  int threadN = n / nThreads;
-  std::vector<std::future<double>> futures;
-  for (int i = 0; i < nThreads; ++i) {
-    futures.push_back(std::async(std::launch::async, Riemann, f,
-                                 begin + i * threadStep,
-                                 begin + (i + 1) * threadStep, threadN));
-  }
-  double sum = 0;
-  for (auto &f : futures) {
-    sum += f.get();
-  }
-  return sum;
 }

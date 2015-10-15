@@ -1,7 +1,12 @@
+/// \author Johannes de Fine Licht (definelj@student.ethz.ch)
+/// \date October 2015
+
 #pragma once
 
 #include <mutex>
 #include <condition_variable>
+
+namespace hpcse {
 
 class Barrier {
 
@@ -36,3 +41,5 @@ void Barrier::Synchronize() {
     cv_.notify_all();
   }
 }
+
+} // End namespace hpcse

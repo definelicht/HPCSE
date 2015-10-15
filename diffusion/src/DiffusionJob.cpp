@@ -1,4 +1,9 @@
-#include "DiffusionJob.h"
+/// \author Johannes de Fine Licht (definelj@student.ethz.ch)
+/// \date October 2015
+
+#include "diffusion/DiffusionJob.h"
+
+namespace hpcse {
 
 DiffusionJob::DiffusionJob(const unsigned rows, const unsigned cols,
                            const int rowOffset)
@@ -72,3 +77,5 @@ std::vector<Grid_t> DiffusionJob::RunDiffusion(
   }
   return output;
 }
+
+} // End namespace hpcse

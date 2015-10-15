@@ -1,4 +1,9 @@
-#include "DiffusionSequential.h"
+/// \author Johannes de Fine Licht (definelj@student.ethz.ch)
+/// \date October 2015
+
+#include "diffusion/DiffusionSequential.h"
+
+namespace hpcse {
 
 Grid_t InitializeGrid(const unsigned dim);
 
@@ -54,3 +59,5 @@ void Diffuse(const float factor, Grid_t const &grid, Grid_t &buffer) {
     }
   }
 }
+
+} // End namespace hpcse

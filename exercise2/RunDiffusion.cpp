@@ -1,9 +1,9 @@
 /// \author Johannes de Fine Licht (definelj@student.ethz.ch)
 /// \date October 2015
 
-#include "Diffusion.h"
-#include "DiffusionSequential.h"
-#include "DiffusionParallel.h"
+#include "diffusion/Diffusion.h"
+#include "diffusion/DiffusionSequential.h"
+#include "diffusion/DiffusionParallel.h"
 
 #include <algorithm> // std::sort
 #include <cassert>
@@ -13,6 +13,8 @@
 #include <iterator>
 #include <string>    // std::stoi, std::stof
 #include <vector>
+
+using namespace hpcse;
 
 int main(int argc, char const *argv[]) {
   if (argc < 6) {

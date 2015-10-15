@@ -1,7 +1,12 @@
+/// \author Johannes de Fine Licht definelj@student.ethz.ch
+/// \date October 2015
+
 #pragma once
 
-#include "Barrier.h"
-#include "Diffusion.h"
+#include "diffusion/Barrier.h"
+#include "diffusion/Diffusion.h"
+
+namespace hpcse {
 
 class DiffusionJob {
 
@@ -36,3 +41,5 @@ std::shared_ptr<DiffusionJob>
 DiffusionJob::Allocate(unsigned cols, int rowBegin, int rowEnd) {
   return std::make_shared<DiffusionJob>(cols, rowBegin, rowEnd);
 }
+
+} // End namespace hpcse

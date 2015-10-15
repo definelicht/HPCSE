@@ -1,8 +1,13 @@
-#include "Barrier.h"
+/// \author Johannes de Fine Licht (definelj@student.ethz.ch)
+/// \date October 2015
+
+#include "diffusion/Barrier.h"
 
 #include <iostream>
 #include <thread>
 #include <vector>
+
+using namespace hpcse;
 
 void Race() {
   auto printStep = []() {

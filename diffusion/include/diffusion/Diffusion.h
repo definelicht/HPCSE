@@ -1,6 +1,11 @@
+/// \author Johannes de Fine Licht (definelj@student.ethz.ch)
+/// \date October 2015
+
 #pragma once
 
 #include <vector>
+
+namespace hpcse {
 
 using Row_t = std::vector<float>;
 
@@ -14,3 +19,5 @@ inline __attribute__((always_inline)) float DiffusionKernel(const float factor,
          factor * (grid[i - 1][j] + grid[i][j - 1] - 4 * grid[i][j] +
                    grid[i][j + 1] + grid[i + 1][j]);
 }
+
+} // End namespace hpcse
