@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(dhcp_exercise1)
+project(hpcse_exercise1)
 
 find_package(Threads REQUIRED)
 find_package(OpenMP REQUIRED)

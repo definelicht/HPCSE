@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(dhcp_exercise2)
+project(hpcse_exercise2)
 
 find_package(Threads REQUIRED)
 set(HPCSE_LIBS "${CMAKE_THREAD_LIBS_INIT}")
