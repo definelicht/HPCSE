@@ -37,23 +37,25 @@ import ycm_core
 flags = [
 '-Wall',
 '-Wextra',
+'-Werror',
 '-Weffc++',
+'-Wno-long-long',
+'-Wno-variadic-macros',
+'-fexceptions',
+'-DNDEBUG',
 '-std=c++14',
 '-x',
 'c++',
 '-isystem',
 '../BoostParts',
 '-isystem',
+'/System/Library/Frameworks/Python.framework/Headers',
 '-isystem',
 '../llvm/include',
 '-isystem',
 '../llvm/tools/clang/include',
 '-I',
 '.',
-'-I',
-'./riemann/include/',
-'-I',
-'./diffusion/include/',
 '-I',
 './ClangCompleter',
 '-isystem',
@@ -64,10 +66,25 @@ flags = [
 './tests/gmock',
 '-isystem',
 './tests/gmock/include',
-'-I/opt/opencv/install/3.0.0/include',
-'-Iinclude/'
+'-I',
+'./include/',
+'-I',
+'./diffusion/include/',
+'-I',
+'./riemann/include/',
 ]
 
+
+# Set this to the absolute path to the folder (NOT the file!) containing the
+# compile_commands.json file to use that instead of 'flags'. See here for
+# more details: http://clang.llvm.org/docs/JSONCompilationDatabase.html
+#
+# You can get CMake to generate this file for you by adding:
+#   set( CMAKE_EXPORT_COMPILE_COMMANDS 1 )
+# to your CMakeLists.txt file.
+#
+# Most projects will NOT need to set this to anything; you can just change the
+# 'flags' list of compilation flags. Notice that YCM itself uses that approach.
 compilation_database_folder = ''
 
 if os.path.exists( compilation_database_folder ):
@@ -145,6 +162,13 @@ def FlagsForFile( filename, **kwargs ):
       compilation_info.compiler_flags_,
       compilation_info.compiler_working_dir_ )
 
+    # NOTE: This is just for YouCompleteMe; it's highly likely that your project
+    # does NOT need to remove the stdlib flag. DO NOT USE THIS IN YOUR
+    # ycm_extra_conf IF YOU'RE NOT 100% SURE YOU NEED IT.
+    try:
+      final_flags.remove( '-stdlib=libc++' )
+    except ValueError:
+      pass
   else:
     relative_to = DirectoryOfThisScript()
     final_flags = MakeRelativePathsInFlagsAbsolute( flags, relative_to )
