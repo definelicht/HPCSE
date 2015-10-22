@@ -29,4 +29,9 @@ axMu.set_yscale("log")
 axMu.set_xlabel("t")
 axMu.set_ylabel("mu^2")
 axMu.legend(loc=1)
-plt.show()
+
+if len(sys.argv) < 4:
+  plt.show()
+else:
+  figN.savefig(sys.argv[2], bbox_inches="tight")
+  figMu.savefig(sys.argv[3], bbox_inches="tight")
