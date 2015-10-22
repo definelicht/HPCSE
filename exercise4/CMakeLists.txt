@@ -1,0 +1,6 @@
+if (NOT HPCSE_OPENMP_FOUND)
+  message(WARNING "Project built without OpenMP. Exercise 4 will not be built.") 
+else()
+  add_executable(RunRandomWalk RunRandomWalk.cpp)
+  target_link_libraries(RunRandomWalk ${HPCSE_LIBS} diffusion)
+endif()
