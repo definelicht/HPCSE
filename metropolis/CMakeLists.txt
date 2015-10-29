@@ -1,0 +1,10 @@
+include_directories(include)
+if (HPCSE_OPENMP_FOUND)
+  set(METROPOLIS_SRC 
+    src/RigidDisks.cpp)
+  set(METROPOLIS_SRC ${METROPOLIS_SRC} src/RigidDisks.cpp)
+  add_library(metropolis ${METROPOLIS_SRC})
+  target_link_libraries(metropolis ${HPCSE_LIBS})
+else()
+  message(WARNING "Compiling without OpenMP. Metropolis not available.")
+endif()
