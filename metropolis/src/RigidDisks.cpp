@@ -1,8 +1,10 @@
 #include "metropolis/RigidDisks.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <future>
+#include <iostream>
 #include <random>
 #include <utility>
 
@@ -16,6 +18,8 @@ std::vector<float> RigidDisks(const unsigned nThreads, const unsigned nx,
                               const float diameterFactor,
                               const unsigned stepsEquilibrium,
                               const unsigned steps, const unsigned nBins) {
+
+  auto startTotal = std::chrono::system_clock::now();
 
   const unsigned nTot = nx*ny;
   const float lDivNx = l/nx;
@@ -104,6 +108,7 @@ std::vector<float> RigidDisks(const unsigned nThreads, const unsigned nx,
     return histogram;
   };
   std::vector<float> histogram;
+  auto startInner = std::chrono::system_clock::now();
   if (nThreads > 1) {
     std::vector<std::future<std::vector<float>>> futures;
     for (unsigned i = 0; i < nThreads; ++i) {
@@ -136,12 +141,23 @@ std::vector<float> RigidDisks(const unsigned nThreads, const unsigned nx,
   } else {
     histogram = runMeasurements(steps, disks, doStepSequential);
   }
+  auto elapsedInner = 1e-6 *
+            std::chrono::duration_cast<std::chrono::microseconds>(
+                std::chrono::system_clock::now() - startInner)
+                .count();
+  std::cout << "Measurement steps finished in " << elapsedInner
+            << " seconds.\n";
 
   // Average over measurements
   const float stepsInv = 1. / steps;
   std::for_each(histogram.begin(), histogram.end(),
                 [&stepsInv](float &x) { x *= stepsInv; });
 
+  auto elapsedTotal = 1e-6 *
+                      std::chrono::duration_cast<std::chrono::microseconds>(
+                          std::chrono::system_clock::now() - startTotal)
+                          .count();
+  std::cout << "Finished in " << elapsedTotal << " seconds total.\n";
   return histogram;
 }
 
