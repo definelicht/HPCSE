@@ -1,10 +1,9 @@
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(include)
 set(DIFFUSION_SRC 
   src/Diffusion.cpp
   src/DiffusionJob.cpp
   src/DiffusionParallel.cpp
-  src/DiffusionSequential.cpp
-  src/RandomWalk.cpp)
+  src/DiffusionSequential.cpp)
 if (HPCSE_OPENMP_FOUND)
   set(DIFFUSION_SRC ${DIFFUSION_SRC} src/RandomWalk.cpp)
 else()
