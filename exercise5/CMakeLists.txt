@@ -1,0 +1,6 @@
+if (NOT HPCSE_OPENMP_FOUND)
+  message(WARNING "Project built without OpenMP. Exercise 5 will not be built.") 
+else()
+  add_executable(RunRigidDisks RunRigidDisks.cpp)
+  target_link_libraries(RunRigidDisks ${HPCSE_LIBS} metropolis)
+endif()
