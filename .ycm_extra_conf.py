@@ -39,9 +39,6 @@ flags = [
 '-Wextra',
 '-Werror',
 '-Weffc++',
-'-Wno-long-long',
-'-Wno-variadic-macros',
-'-fexceptions',
 '-DNDEBUG',
 '-std=c++14',
 '-x',
@@ -72,6 +69,8 @@ flags = [
 './diffusion/include/',
 '-I',
 './riemann/include/',
+'-I',
+'./metropolis/include/',
 ]
 
 
