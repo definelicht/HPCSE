@@ -1,5 +1,4 @@
 #include "diffusion/RandomWalk.h"
-#include <iostream>
 #include <cmath>
 #include <random>
 #include <omp.h>
@@ -38,14 +37,15 @@ RandomWalk(unsigned nThreads, unsigned iterations, float d,
     unsigned localIterations =
         (omp_get_thread_num() + 1) * iterations / nThreads -
         omp_get_thread_num() * iterations / nThreads;
-    std::cout << "Local iterations: " << localIterations << "\n";
     auto threadResult = RandomWalkKernel(localIterations, d, start,
                                          xBounds, yBounds, boundaryCondition);
     sum = threadResult.first;
     sumOfSquares = threadResult.second;
   }
-  return {sum / iterations,
-          (sumOfSquares - (sum * sum) / iterations) / (iterations - 1)};
+  return {
+      sum / iterations,
+      std::sqrt(((sumOfSquares - (sum * sum) / iterations) / (iterations - 1)) /
+                iterations)};
 }
 
 std::pair<double, double>
