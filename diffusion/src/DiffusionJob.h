@@ -11,7 +11,7 @@ namespace hpcse {
 class DiffusionJob {
 
 public:
-  DiffusionJob(unsigned rows, unsigned cols, int rowOffset);
+  DiffusionJob(int rows, int cols, int rowOffset);
 
   inline Row_t const &FirstRow() const;
 

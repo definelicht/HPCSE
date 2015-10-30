@@ -1,21 +1,22 @@
 /// \author Johannes de Fine Licht (definelj@student.ethz.ch)
 /// \date October 2015
 
+#include <iostream>
 #include "DiffusionJob.h"
 
 namespace hpcse {
 
-DiffusionJob::DiffusionJob(const unsigned rows, const unsigned cols,
+DiffusionJob::DiffusionJob(const int rows, const int cols,
                            const int rowOffset)
     : grid_(rows, Row_t(cols)), buffer_(grid_) {
-  const float halfDim = (cols >> 1) - 0.5;
-  const float boundSquared = (cols * cols) >> 4;
-  const int dimSigned = cols;
-  for (int i = 0, iEnd = rows; i < iEnd; ++i) {
-    float dx = (rowOffset+i) - halfDim;
-    for (int j = 0; j < dimSigned; ++j) {
-      float dy = j - halfDim;
-      grid_[i][j] = dx*dx + dy*dy < boundSquared;
+  const int minCol = cols>>2;
+  const int maxCol = cols - minCol;
+  const int minRow = minCol - rowOffset;
+  const int maxRow = (cols - minCol) - rowOffset;
+  for (int i = 0; i < rows; ++i) {
+    const bool inRow = i > minRow && i < maxRow;
+    for (int j = 0; j < cols; ++j) {
+      grid_[i][j] = inRow && j > minCol && j < maxCol;
     }
   }
 }

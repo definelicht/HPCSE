@@ -37,15 +37,12 @@ std::vector<Grid_t> DiffusionSequential(unsigned dim, const float d,
 
 Grid_t InitializeGrid(const unsigned dim) {
   Grid_t grid(dim, Grid_t::value_type(dim));
-  const float halfDim = (dim>>1) - 0.5;
-  const float boundSquared = (dim*dim)>>4;
-  const int dimSigned = dim;
+  const unsigned begin = dim>>2;
+  const unsigned end = dim - begin;
   #pragma omp parallel for
-  for (int i = 0; i < dimSigned; ++i) {
-    float dx = i - halfDim;
-    for (int j = 0; j < dimSigned; ++j) {
-      float dy = j - halfDim;
-      grid[i][j] = dx*dx + dy*dy < boundSquared;
+  for (unsigned i = begin; i < end; ++i) {
+    for (unsigned j = begin; j < end; ++j) {
+      grid[i][j] = 1;
     }
   }
   return grid;
