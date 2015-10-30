@@ -1,7 +1,8 @@
 #include <cassert>
 #include <chrono>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <iterator>
 #include <mpi.h>
 #include "diffusion/DiffusionMPI.h"
 
@@ -40,7 +41,7 @@ int main(int argc, char const *argv[]) {
                           .count();
   if (rank != 0) {
     for (auto &s : snapshots) {
-      for (auto row = s.cbegin()+1, rowEnd = s.cend()-1; row != rowEnd; ++row) {
+      for (auto row = s.begin()+1, rowEnd = s.end()-1; row != rowEnd; ++row) {
         MPI_Ssend(row->data(), dim, MPI_FLOAT, 0, 0, MPI_COMM_WORLD);
       }
     }
