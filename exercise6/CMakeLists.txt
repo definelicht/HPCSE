@@ -1,0 +1,6 @@
+if (NOT HPCSE_MPI_FOUND)
+  message(WARNING "Project built without MPI. Exercise 6 will not be built.") 
+else()
+  add_executable(RunDiffusionMPI RunDiffusionMPI.cpp)
+  target_link_libraries(RunDiffusionMPI ${HPCSE_LIBS} diffusion)
+endif()
