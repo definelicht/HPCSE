@@ -9,7 +9,6 @@
 using namespace hpcse;
 
 int main(int argc, char const *argv[]) {
-  assert(MPI_Init(nullptr, nullptr) == MPI_SUCCESS);
   if (argc < 6) {
     std::cerr << "Usage: <diffusion constant> <grid dimension> "
                  "<timestep> <output file> <time for "
@@ -17,6 +16,7 @@ int main(int argc, char const *argv[]) {
               << std::endl;
     return 1;
   }
+  assert(MPI_Init(nullptr, nullptr) == MPI_SUCCESS);
   float d = std::stof(argv[1]);
   unsigned dim = std::stoi(argv[2]);
   float dt = std::stof(argv[3]);
