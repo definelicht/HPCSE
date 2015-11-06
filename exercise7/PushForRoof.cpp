@@ -90,19 +90,21 @@ int main(int argc, char const *argv[]) {
   }
   const size_t iMax = std::stol(argv[1]);
   double nFlops = elementsPerRun*iMax;
+  double nBytes = 3*sizeof(float)*elementsPerRun*iMax;
 
   // Align arrays for AVX
   float source[elementsPerRun] __attribute__((aligned(64)));
   std::fill(source, source+elementsPerRun, 1.);
 
-  auto runBenchmark = [&source, iMax, nFlops](
+  auto runBenchmark = [&source, iMax, nFlops, nBytes](
       std::string const &name,
       std::function<double(size_t, const float[], float[])> const &f) {
     float target[elementsPerRun] __attribute__((aligned(64)));
     std::fill(target, target+elementsPerRun, 0.);
     double elapsed = f(iMax, source, target);
     VerifyOutput(iMax, target);
-    std::cout << name << ": " << (nFlops / elapsed) << " FLOPS.\n";
+    std::cout << name << ":\n  " << 1e-9 * (nFlops / elapsed) << " GFLOPS\n  "
+              << 1e-9 * (nBytes / elapsed) << " GB/s\n";
   };
 
   runBenchmark("Vanilla", Vanilla);
