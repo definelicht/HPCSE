@@ -134,6 +134,11 @@ figStrong, axStrong = strongscaling(manual, mpi)
 figWeak, axWeak = weakscaling(manual, mpi)
 figComp, axComp = comparison(manual, mpi)
 
+print(("Highest single node performance: {} seconds per iteration per grid size "
+      + "squared.").format(
+          mpi["4096"]["timeMean"][mpi["4096"]["threadsUnique"] == 24][0]
+          /4096**2))
+
 if len(sys.argv) == 4:
   figWeak.savefig(sys.argv[3] + "/mpi_weak.pdf", bbox_inches="tight")
   figStrong.savefig(sys.argv[3] + "/mpi_strong.pdf", bbox_inches="tight")
