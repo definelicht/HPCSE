@@ -24,6 +24,14 @@ double Vanilla(const size_t iMax, const float source[], float target[]) {
     #pragma clang loop vectorize(disable)
     for (size_t j = 0; j < elementsPerRun; ++j) {
       target[j] += source[j];
+      target[j] -= source[j];
+      target[j] += source[j];
+      target[j] -= source[j];
+      target[j] += source[j];
+      target[j] -= source[j];
+      target[j] += source[j];
+      target[j] -= source[j];
+      target[j] += source[j];
     }
   }
   double elapsed = timer.Stop();
@@ -35,6 +43,14 @@ double AutoVectorization(const size_t iMax, const float source[], float target[]
   for (size_t i = 0; i < iMax; ++i) {
     #pragma clang loop vectorize(enable)
     for (size_t j = 0; j < elementsPerRun; ++j) {
+      target[j] += source[j];
+      target[j] -= source[j];
+      target[j] += source[j];
+      target[j] -= source[j];
+      target[j] += source[j];
+      target[j] -= source[j];
+      target[j] += source[j];
+      target[j] -= source[j];
       target[j] += source[j];
     }
   }
@@ -49,6 +65,14 @@ double SseIntrinsics(const size_t iMax, const float source[], float target[]) {
     for (size_t j = 0; j < elementsPerRun; j += 4) {
       __m128 s = _mm_load_ps(source+j); 
       __m128 t = _mm_load_ps(target+j);
+      s = _mm_add_ps(s, t);
+      s = _mm_sub_ps(s, t);
+      s = _mm_add_ps(s, t);
+      s = _mm_sub_ps(s, t);
+      s = _mm_add_ps(s, t);
+      s = _mm_sub_ps(s, t);
+      s = _mm_add_ps(s, t);
+      s = _mm_sub_ps(s, t);
       s = _mm_add_ps(s, t);
       _mm_store_ps(target+j, s);
     }
@@ -66,6 +90,14 @@ double AvxIntrinsics(const size_t iMax, const float source[], float target[]) {
       __m256 s = _mm256_load_ps(source+j); 
       __m256 t = _mm256_load_ps(target+j);
       s = _mm256_add_ps(s, t);
+      s = _mm256_sub_ps(s, t);
+      s = _mm256_add_ps(s, t);
+      s = _mm256_sub_ps(s, t);
+      s = _mm256_add_ps(s, t);
+      s = _mm256_sub_ps(s, t);
+      s = _mm256_add_ps(s, t);
+      s = _mm256_add_ps(s, t);
+      s = _mm256_sub_ps(s, t);
       _mm256_store_ps(target+j, s);
     }
   }
@@ -89,7 +121,7 @@ int main(int argc, char const *argv[]) {
     return 1;
   }
   const size_t iMax = std::stol(argv[1]);
-  double nFlops = elementsPerRun*iMax;
+  double nFlops = 11*elementsPerRun*iMax;
   double nBytes = 3*sizeof(float)*elementsPerRun*iMax;
 
   // Align arrays for AVX
