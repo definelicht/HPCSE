@@ -23,15 +23,6 @@ void CopyC(const size_t numFloats, const float src[], float tgt[]) {
   std::memcpy(tgt, src, numFloats*sizeof(float));
 }
 
-#ifdef __AVX__ 
-void CopyAvx(const size_t numFloats, const float src[], float tgt[]) {
-  for (size_t i = 0; i < numFloats; i += 8) {
-    __m256 s = _mm256_load_ps(src + i);
-    _mm256_store_ps(tgt + i, s);
-  }
-}
-#endif
-
 int main(int argc, char const *argv[]) {
   if (argc < 3) {
     std::cerr << "Specify number of iterations and memory size(s).\n";
@@ -62,9 +53,6 @@ int main(int argc, char const *argv[]) {
     doCopy(CopyLoop, "Loop");
     doCopy(CopyStl, "std::copy");
     doCopy(CopyC, "std::memcpy");
-#ifdef __AVX__
-    doCopy(CopyAvx, "AVX");
-#endif
     delete[] src;
   }
 }
