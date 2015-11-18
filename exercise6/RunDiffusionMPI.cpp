@@ -34,7 +34,7 @@ int main(int argc, char const *argv[]) {
               << *(timeToRecord.cend() - 1) / dt << " iterations...\n";
   }
   auto start = std::chrono::system_clock::now();
-  auto snapshots = DiffusionMPI(dim, d, dt, timeToRecord);
+  auto snapshots = DiffusionRows(dim, d, dt, timeToRecord);
   auto elapsedInner = 1e-6 *
                       std::chrono::duration_cast<std::chrono::microseconds>(
                           std::chrono::system_clock::now() - start)

@@ -1,4 +1,5 @@
 include_directories(include)
+include_directories(../common/include)
 set(DIFFUSION_SRC 
   src/Diffusion.cpp
   src/DiffusionJob.cpp
@@ -10,7 +11,9 @@ else()
   message(WARNING "Diffusion: compiling without OpenMP. Random walk not available.")
 endif()
 if (HPCSE_MPI_FOUND)
-  set(DIFFUSION_SRC ${DIFFUSION_SRC} src/DiffusionMPI.cpp)
+  set(DIFFUSION_SRC ${DIFFUSION_SRC}
+      src/DiffusionRows.cpp
+      src/DiffusionGrid.cpp)
 else()
   message(WARNING "Diffusion: compiling without MPI.")
 endif()
