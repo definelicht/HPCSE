@@ -5,7 +5,9 @@
 #include <stdexcept>
 #include <mpi.h>
 
-namespace hpcse::mpi {
+namespace hpcse {
+
+namespace mpi {
 
 namespace {
 
@@ -102,7 +104,8 @@ void Gather(const SendIterator sendBegin, const SendIterator sendEnd,
             const MPI_Comm comm = MPI_COMM_WORLD) {
   using TSend = typename std::iterator_traits<SendIterator>::value_type;
   using TReceive = typename std::iterator_traits<ReceiveIterator>::value_type;
-  static_assert(sizeof(TSend) == sizeof(TReceive));
+  static_assert(sizeof(TSend) == sizeof(TReceive),
+                "Send and receive types must be of equal size.");
   const int nElements = std::distance(sendBegin, sendEnd);
   MPI_Gather(&(*sendBegin), nElements, MpiType<TSend>::value(),
              &(*receiveBegin), nElements, MpiType<TReceive>::value(), root,
@@ -262,4 +265,6 @@ private:
 
 };
 
-} // End namespace hpcse::mpi
+} // End namespace mpi
+
+} // End namespace hpcse
