@@ -15,8 +15,20 @@ std::vector<Grid_t> DiffusionGrid(const unsigned gridDim, const float d,
   const int nSnapshots = timesToRecord.size();
 
   // Construct cartesian grid
-  const int nHorizontal = std::sqrt(mpi::size());
-  const int nVertical = mpi::size() / nHorizontal;
+  int nHorizontal, nVertical;
+  const int nRanks = mpi::size();
+  nHorizontal = nVertical = std::sqrt(nRanks);
+  while (true) {
+    int nCells = nHorizontal*nVertical;
+    if (nCells == nRanks) {
+      break;
+    }
+    if (nCells < nRanks) {
+      ++nVertical;
+    } else {
+      --nHorizontal;
+    }
+  }
   mpi::CartesianGrid<2> mpiGrid({{nVertical, nHorizontal}}, false);
 
   // Determine local grid
