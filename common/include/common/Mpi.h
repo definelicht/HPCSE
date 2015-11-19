@@ -11,8 +11,7 @@ namespace mpi {
 
 namespace {
 
-template <typename T>
-struct MpiType;
+template <typename T> struct MpiType;
 
 #define CPPUTILS_MPI_SENDBACKEND(TYPE, MPI_TYPE_NAME)                          \
   template <> struct MpiType<TYPE> {                                           \
@@ -40,9 +39,7 @@ inline int rank(MPI_Comm const &comm) {
   return output;
 }
 
-inline int rank() {
-  return rank(MPI_COMM_WORLD);
-}
+inline int rank() { return rank(MPI_COMM_WORLD); }
 
 inline int size(MPI_Comm const &comm) {
   int output;
@@ -50,22 +47,21 @@ inline int size(MPI_Comm const &comm) {
   return output;
 }
 
-inline int size() {
-  return size(MPI_COMM_WORLD);
-}
+inline int size() { return size(MPI_COMM_WORLD); }
 
 template <typename IteratorType, typename = CheckRandomAccess<IteratorType>>
-void Send(IteratorType begin, const IteratorType end, const int destination,
-          const int tag = 0, const MPI_Comm comm = MPI_COMM_WORLD) {
+void Send(const IteratorType begin, const IteratorType end,
+          const int destination, const int tag = 0,
+          MPI_Comm comm = MPI_COMM_WORLD) {
   using T = typename std::iterator_traits<const IteratorType>::value_type;
   MPI_Send(&(*begin), std::distance(begin, end), MpiType<T>::value(),
            destination, tag, comm);
 }
 
 template <typename IteratorType, typename = CheckRandomAccess<IteratorType>>
-MPI_Request SendAsync(IteratorType begin, const IteratorType end,
+MPI_Request SendAsync(const IteratorType begin, const IteratorType end,
                       const int destination, const int tag = 0,
-                      const MPI_Comm comm = MPI_COMM_WORLD) {
+                      MPI_Comm comm = MPI_COMM_WORLD) {
   using T = typename std::iterator_traits<const IteratorType>::value_type;
   MPI_Request request;
   MPI_Isend(&(*begin), std::distance(begin, end), MpiType<T>::value(),
@@ -74,9 +70,8 @@ MPI_Request SendAsync(IteratorType begin, const IteratorType end,
 }
 
 template <typename IteratorType, typename = CheckRandomAccess<IteratorType>>
-MPI_Status Receive(IteratorType begin, const IteratorType end,
-                   const int source, const int tag = 0,
-                   const MPI_Comm comm = MPI_COMM_WORLD) {
+MPI_Status Receive(IteratorType begin, const IteratorType end, const int source,
+                   const int tag = 0, MPI_Comm comm = MPI_COMM_WORLD) {
   using T = typename std::iterator_traits<IteratorType>::value_type;
   MPI_Status status;
   MPI_Recv(&(*begin), std::distance(begin, end), MpiType<T>::value(), source,
@@ -87,7 +82,7 @@ MPI_Status Receive(IteratorType begin, const IteratorType end,
 template <typename IteratorType, typename = CheckRandomAccess<IteratorType>>
 MPI_Request ReceiveAsync(IteratorType begin, const IteratorType end,
                          const int source, const int tag = 0,
-                         const MPI_Comm comm = MPI_COMM_WORLD) {
+                         MPI_Comm comm = MPI_COMM_WORLD) {
   using T = typename std::iterator_traits<IteratorType>::value_type;
   MPI_Request request;
   MPI_Irecv(&(*begin), std::distance(begin, end), MpiType<T>::value(), source,
@@ -98,9 +93,9 @@ MPI_Request ReceiveAsync(IteratorType begin, const IteratorType end,
 template <typename SendIterator, typename ReceiveIterator,
           typename = CheckRandomAccess<SendIterator>,
           typename = CheckRandomAccess<ReceiveIterator>>
-void Gather(SendIterator sendBegin, const SendIterator sendEnd,
+void Gather(const SendIterator sendBegin, const SendIterator sendEnd,
             ReceiveIterator receiveBegin, const int root,
-            const MPI_Comm comm = MPI_COMM_WORLD) {
+            MPI_Comm comm = MPI_COMM_WORLD) {
   using TSend = typename std::iterator_traits<SendIterator>::value_type;
   using TReceive = typename std::iterator_traits<ReceiveIterator>::value_type;
   static_assert(sizeof(TSend) == sizeof(TReceive),
@@ -118,26 +113,22 @@ inline MPI_Status Wait(MPI_Request &request) {
 }
 
 template <template <class, class> class ContainerType>
-ContainerType<MPI_Status, std::allocator<MPI_Status>> WaitAll(
-    ContainerType<MPI_Request, std::allocator<MPI_Request>> & requests) {
+ContainerType<MPI_Status, std::allocator<MPI_Status>>
+WaitAll(ContainerType<MPI_Request, std::allocator<MPI_Request>> &requests) {
   ContainerType<MPI_Status, std::allocator<MPI_Status>> statuses(
       requests.size());
-  MPI_Waitall(requests.size(), requests.data(), statuses.data()); 
+  MPI_Waitall(requests.size(), requests.data(), statuses.data());
   return statuses;
 }
 
 class Context {
 
 public:
-  inline Context() : argc_(), argv_(nullptr) {
-    MPI_Init(nullptr, nullptr);
-  }
+  inline Context() : argc_(), argv_(nullptr) { MPI_Init(nullptr, nullptr); }
   inline Context(int argc, char **argv) : argc_(argc), argv_(argv) {
     MPI_Init(&argc_, &argv_);
   }
-  inline ~Context() {
-    MPI_Finalize();
-  }
+  inline ~Context() { MPI_Finalize(); }
   Context(Context const &) = delete;
   Context(Context &&) = delete;
   Context &operator=(Context const &) = delete;
@@ -148,16 +139,13 @@ private:
   char **argv_;
 };
 
-
-template <size_t Dim>
-class CartesianGrid {
+template <size_t Dim> class CartesianGrid {
 
   static_assert(Dim > 0, "Cartesian grid must have a least one dimension.");
 
 public:
   CartesianGrid(std::array<int, Dim> const &dimensions,
-                const bool periodic = false,
-                const MPI_Comm comm = MPI_COMM_WORLD)
+                const bool periodic = false, MPI_Comm comm = MPI_COMM_WORLD)
       : dimensions_(dimensions) {
     std::fill(periods_.begin(), periods_.end(), periodic);
     MPI_Cart_create(comm, Dim, dimensions_.data(), periods_.data(), true,
@@ -166,41 +154,31 @@ public:
                  coords_.data());
   }
 
-  template <size_t GetDim>
-  int get() const {
-    return coords_[GetDim];
-  }
+  template <size_t GetDim> int get() const { return coords_[GetDim]; }
 
-  int get(const size_t dim) const {
-    return coords_[dim];
-  }
+  int get(const size_t dim) const { return coords_[dim]; }
 
-  template <size_t GetDim>
-  int getMax() const {
+  template <size_t GetDim> int getMax() const {
     static_assert(GetDim < Dim, "Requested dimension is out of bounds.");
     return dimensions_[GetDim];
   }
 
-  int getMax(const size_t dim) const {
-    return dimensions_[dim];
-  }
+  int getMax(const size_t dim) const { return dimensions_[dim]; }
 
   typename std::enable_if<(Dim > 1), int>::type row() const {
-    return coords_[Dim-2];
+    return coords_[Dim - 2];
   }
 
   typename std::enable_if<(Dim > 1), int>::type col() const {
-    return coords_[Dim-1];   
+    return coords_[Dim - 1];
   }
 
-  typename std::enable_if<(Dim > 1), int>::type
-  rowMax() const {
-    return dimensions_[Dim-2];
+  typename std::enable_if<(Dim > 1), int>::type rowMax() const {
+    return dimensions_[Dim - 2];
   }
 
-  typename std::enable_if<(Dim > 1), int>::type
-  colMax() const {
-    return dimensions_[Dim-1];
+  typename std::enable_if<(Dim > 1), int>::type colMax() const {
+    return dimensions_[Dim - 1];
   }
 
   template <size_t ShiftDim>
@@ -241,8 +219,7 @@ public:
     return shift<Dim - 2>(amount);
   }
 
-  template <size_t PartitionDim>
-  MPI_Comm Partition() {
+  template <size_t PartitionDim> MPI_Comm Partition() {
     MPI_Comm comm;
     std::array<int, Dim> dimToSplit;
     for (size_t i = 0; i < Dim; ++i) {
@@ -253,11 +230,10 @@ public:
   }
 
 private:
-  std::array<int, Dim> dimensions_; 
+  std::array<int, Dim> dimensions_;
   std::array<int, Dim> periods_{};
   std::array<int, Dim> coords_{};
   MPI_Comm cartComm_{};
-
 };
 
 } // End namespace mpi
