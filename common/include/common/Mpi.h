@@ -24,6 +24,12 @@ CPPUTILS_MPI_SENDBACKEND(float, MPI_FLOAT);
 CPPUTILS_MPI_SENDBACKEND(double, MPI_DOUBLE);
 #undef CPPUTILS_MPI_SENDBACKEND
 
+template <typename IteratorType>
+using CheckRandomAccess = typename std::enable_if<std::is_base_of<
+    std::random_access_iterator_tag,
+    typename std::iterator_traits<IteratorType>::iterator_category>::value>::
+    type;
+
 } // End anonymous namespace
 
 inline int rank(MPI_Comm const &comm) {
@@ -46,11 +52,7 @@ inline int size() {
   return size(MPI_COMM_WORLD);
 }
 
-template <typename IteratorType,
-          typename = typename std::enable_if<
-              std::is_base_of<std::random_access_iterator_tag,
-                              typename std::iterator_traits<IteratorType>::
-                                  iterator_category>::value>::type>
+template <typename IteratorType, typename = CheckRandomAccess<IteratorType>>
 void Send(const IteratorType begin, const IteratorType end,
           const int destination, const int tag = 0,
           const MPI_Comm comm = MPI_COMM_WORLD) {
@@ -59,12 +61,19 @@ void Send(const IteratorType begin, const IteratorType end,
            destination, tag, comm);
 }
 
-template <typename IteratorType,
-          typename = typename std::enable_if<
-              std::is_base_of<std::random_access_iterator_tag,
-                              typename std::iterator_traits<IteratorType>::
-                                  iterator_category>::value>::type>
-MPI_Status Receive(const IteratorType begin, const IteratorType end,
+template <typename IteratorType, typename = CheckRandomAccess<IteratorType>>
+MPI_Request SendAsync(const IteratorType begin, const IteratorType end,
+                      const int destination, const int tag = 0,
+                      const MPI_Comm comm = MPI_COMM_WORLD) {
+  using T = typename std::iterator_traits<const IteratorType>::value_type;
+  MPI_Request request;
+  MPI_Isend(&(*begin), std::distance(begin, end), MpiType<T>::value(),
+            destination, tag, comm, &request);
+  return request;
+}
+
+template <typename IteratorType, typename = CheckRandomAccess<IteratorType>>
+MPI_Status Receive(IteratorType begin, const IteratorType end,
                    const int source, const int tag = 0,
                    const MPI_Comm comm = MPI_COMM_WORLD) {
   using T = typename std::iterator_traits<IteratorType>::value_type;
@@ -74,14 +83,55 @@ MPI_Status Receive(const IteratorType begin, const IteratorType end,
   return status;
 }
 
+template <typename IteratorType, typename = CheckRandomAccess<IteratorType>>
+MPI_Request ReceiveAsync(IteratorType begin, const IteratorType end,
+                         const int source, const int tag = 0,
+                         const MPI_Comm comm = MPI_COMM_WORLD) {
+  using T = typename std::iterator_traits<IteratorType>::value_type;
+  MPI_Request request;
+  MPI_Irecv(&(*begin), std::distance(begin, end), MpiType<T>::value(), source,
+            tag, comm, &request);
+  return request;
+}
+
+template <typename SendIterator, typename ReceiveIterator,
+          typename = CheckRandomAccess<SendIterator>,
+          typename = CheckRandomAccess<ReceiveIterator>>
+void Gather(const SendIterator sendBegin, const SendIterator sendEnd,
+            ReceiveIterator receiveBegin, const int root,
+            const MPI_Comm comm = MPI_COMM_WORLD) {
+  using TSend = typename std::iterator_traits<SendIterator>::value_type;
+  using TReceive = typename std::iterator_traits<ReceiveIterator>::value_type;
+  static_assert(sizeof(TSend) == sizeof(TReceive));
+  const int nElements = std::distance(sendBegin, sendEnd);
+  MPI_Gather(&(*sendBegin), nElements, MpiType<TSend>::value(),
+             &(*receiveBegin), nElements, MpiType<TReceive>::value(), root,
+             comm);
+}
+
+inline MPI_Status Wait(MPI_Request &request) {
+  MPI_Status status;
+  MPI_Wait(&request, &status);
+  return status;
+}
+
+template <template <class, class> class ContainerType>
+ContainerType<MPI_Status, std::allocator<MPI_Status>> WaitAll(
+    ContainerType<MPI_Request, std::allocator<MPI_Request>> & requests) {
+  ContainerType<MPI_Status, std::allocator<MPI_Status>> statuses(
+      requests.size());
+  MPI_Waitall(requests.size(), requests.data(), statuses.data()); 
+  return statuses;
+}
+
 class Context {
 
 public:
-  inline Context() {
+  inline Context() : argc_(), argv_(nullptr) {
     MPI_Init(nullptr, nullptr);
   }
-  inline Context(int *argc, char ***argv) {
-    MPI_Init(argc, argv);
+  inline Context(int argc, char **argv) : argc_(argc), argv_(argv) {
+    MPI_Init(&argc_, &argv_);
   }
   inline ~Context() {
     MPI_Finalize();
@@ -90,6 +140,10 @@ public:
   Context(Context &&) = delete;
   Context &operator=(Context const &) = delete;
   Context &operator=(Context &&) = delete;
+
+private:
+  int argc_;
+  char **argv_;
 };
 
 
@@ -104,7 +158,7 @@ public:
                 const MPI_Comm comm = MPI_COMM_WORLD)
       : dimensions_(dimensions) {
     std::fill(periods_.begin(), periods_.end(), periodic);
-    MPI_Cart_create(comm, Dim, dimensions_.data(), periods_.data(), false,
+    MPI_Cart_create(comm, Dim, dimensions_.data(), periods_.data(), true,
                     &cartComm_);
     MPI_Cart_get(cartComm_, Dim, dimensions_.data(), periods_.data(),
                  coords_.data());
@@ -187,6 +241,17 @@ public:
                           std::pair<int, bool>>::type
   down(const int amount = 1) const {
     return shift<Dim - 2>(amount);
+  }
+
+  template <size_t PartitionDim>
+  MPI_Comm Partition() {
+    MPI_Comm comm;
+    std::array<int, Dim> dimToSplit;
+    for (size_t i = 0; i < Dim; ++i) {
+      dimToSplit[i] = i == PartitionDim;
+    }
+    MPI_Cart_sub(cartComm_, dimToSplit.data(), &comm);
+    return comm;
   }
 
 private:

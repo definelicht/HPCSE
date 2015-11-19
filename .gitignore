@@ -1,3 +1,4 @@
 build/
 latex/
 *.pdf
+.ycm_extra_conf*

@@ -4,12 +4,12 @@
 
 namespace hpcse {
 
-std::vector<Grid_t> DiffusionRows(const unsigned dim, const float d,
-                                  const float dt,
-                                  std::vector<float> const &snapshots);
+std::vector<Grid_t> DiffusionRows(unsigned gridDim, float diffusionConstant,
+                                  float timeStep,
+                                  std::vector<float> const &timesToRecord);
 
-std::vector<Grid_t> DiffusionGrid(const unsigned dim, const float d,
-                                  const float dt,
-                                  std::vector<float> const &snapshots);
+std::vector<Grid_t> DiffusionGrid(unsigned gridDim, float diffusionConstant,
+                                  float timeStep,
+                                  std::vector<float> const &timesToRecord);
 
 } // End namespace hpcse
