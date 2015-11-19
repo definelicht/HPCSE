@@ -186,20 +186,20 @@ public:
     return dimensions_[dim];
   }
 
-  typename std::enable_if<!std::less<size_t>()(Dim, 1), int>::type row() const {
+  typename std::enable_if<(Dim > 1), int>::type row() const {
     return coords_[Dim-2];
   }
 
-  typename std::enable_if<!std::less<size_t>()(Dim, 1), int>::type col() const {
+  typename std::enable_if<(Dim > 1), int>::type col() const {
     return coords_[Dim-1];   
   }
 
-  typename std::enable_if<!std::less<size_t>()(Dim, 1), int>::type
+  typename std::enable_if<(Dim > 1), int>::type
   rowMax() const {
     return dimensions_[Dim-2];
   }
 
-  typename std::enable_if<!std::less<size_t>()(Dim, 1), int>::type
+  typename std::enable_if<(Dim > 1), int>::type
   colMax() const {
     return dimensions_[Dim-1];
   }
@@ -222,26 +222,22 @@ public:
     return output;
   }
 
-  typename std::enable_if<!std::less<size_t>()(Dim, 1),
-                          std::pair<int, bool>>::type
+  typename std::enable_if<(Dim > 1), std::pair<int, bool>>::type
   left(const int amount = 1) const {
     return shift<Dim - 1>(-amount);
   }
 
-  typename std::enable_if<!std::less<size_t>()(Dim, 1),
-                          std::pair<int, bool>>::type
+  typename std::enable_if<(Dim > 1), std::pair<int, bool>>::type
   right(const int amount = 1) const {
     return shift<Dim - 1>(amount);
   }
 
-  typename std::enable_if<!std::less<size_t>()(Dim, 1),
-                          std::pair<int, bool>>::type
+  typename std::enable_if<(Dim > 1), std::pair<int, bool>>::type
   up(const int amount = 1) const {
     return shift<Dim - 2>(-amount);
   }
 
-  typename std::enable_if<!std::less<size_t>()(Dim, 1),
-                          std::pair<int, bool>>::type
+  typename std::enable_if<(Dim > 1), std::pair<int, bool>>::type
   down(const int amount = 1) const {
     return shift<Dim - 2>(amount);
   }
@@ -259,8 +255,8 @@ public:
 
 private:
   std::array<int, Dim> dimensions_; 
-  std::array<int, Dim> periods_;
-  std::array<int, Dim> coords_;
+  std::array<int, Dim> periods_{};
+  std::array<int, Dim> coords_{};
   MPI_Comm cartComm_{};
 
 };
