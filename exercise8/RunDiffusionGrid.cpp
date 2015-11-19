@@ -41,6 +41,12 @@ int main(int argc, char *argv[]) {
     timeToRecord.push_back(std::stof(argv[i]));
   }
 
+  if (mpi::rank() == 0) {
+    std::cout << "Running on " << mpi::size() << " thread(s) for " << dim << "x"
+              << dim << " grid with timestep " << dt << " for "
+              << *(timeToRecord.cend() - 1) / dt << " iterations...\n";
+  }
+
   Timer timer;
   auto snapshots = DiffusionGrid(dim, d, dt, timeToRecord);
   double elapsed = timer.Stop();
