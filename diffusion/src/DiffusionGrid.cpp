@@ -87,16 +87,16 @@ std::vector<Grid_t> DiffusionGrid(const unsigned gridDim, const float d,
       bufferSendRight[i] = diffuse(i, nCols);
     }
     if (neighbors[2].second) {
-      requests.emplace_back(mpi::SendAsync(bufferSendLeft.cbegin(),
-                                           bufferSendLeft.cend(),
+      requests.emplace_back(mpi::SendAsync(bufferSendLeft.begin(),
+                                           bufferSendLeft.end(),
                                            neighbors[2].first));
       colReceive.emplace_back(mpi::ReceiveAsync(bufferReceiveLeft.begin(),
                                                 bufferReceiveLeft.end(),
                                                 neighbors[2].first));
     }
     if (neighbors[3].second) {
-      requests.emplace_back(mpi::SendAsync(bufferSendRight.cbegin(),
-                                           bufferSendRight.cend(),
+      requests.emplace_back(mpi::SendAsync(bufferSendRight.begin(),
+                                           bufferSendRight.end(),
                                            neighbors[3].first));
       colReceive.emplace_back(mpi::ReceiveAsync(bufferReceiveRight.begin(),
                                                 bufferReceiveRight.end(),
@@ -108,7 +108,7 @@ std::vector<Grid_t> DiffusionGrid(const unsigned gridDim, const float d,
     }
     if (neighbors[0].second) {
       requests.emplace_back(mpi::SendAsync(
-          gridBuffer[1].cbegin(), gridBuffer[1].cend(), neighbors[0].first));
+          gridBuffer[1].begin(), gridBuffer[1].end(), neighbors[0].first));
       requests.emplace_back(mpi::ReceiveAsync(
           gridBuffer[0].begin(), gridBuffer[0].end(), neighbors[0].first));
     }
@@ -117,8 +117,8 @@ std::vector<Grid_t> DiffusionGrid(const unsigned gridDim, const float d,
       gridBuffer[nRows][j] = diffuse(nRows, j);
     }
     if (neighbors[1].second) {
-      requests.emplace_back(mpi::SendAsync(gridBuffer[nRows].cbegin(),
-                                           gridBuffer[nRows].cend(),
+      requests.emplace_back(mpi::SendAsync(gridBuffer[nRows].begin(),
+                                           gridBuffer[nRows].end(),
                                            neighbors[1].first));
       requests.emplace_back(mpi::ReceiveAsync(gridBuffer[nRows + 1].begin(),
                                               gridBuffer[nRows + 1].end(),
@@ -171,14 +171,14 @@ std::vector<Grid_t> DiffusionGrid(const unsigned gridDim, const float d,
       if (colRank == 0) {
         target = rowSnapshots[s][i].begin();
       }
-      mpi::Gather(localSnapshots[s][i + 1].cbegin() + 1,
-                  localSnapshots[s][i + 1].cend() - 1, target, 0, colComm);
+      mpi::Gather(localSnapshots[s][i + 1].begin() + 1,
+                  localSnapshots[s][i + 1].end() - 1, target, 0, colComm);
     }
     // Gather all rows in root rank
     if (colRank == 0) {
       if (rowRank != 0) {
         for (int i = 0; i < nRows; ++i) {
-          mpi::Send(rowSnapshots[s][i].cbegin(), rowSnapshots[s][i].cend(), 0,
+          mpi::Send(rowSnapshots[s][i].begin(), rowSnapshots[s][i].end(), 0,
                     0, rowComm);
         }
       } else {
