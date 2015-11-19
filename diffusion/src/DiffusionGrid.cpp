@@ -164,6 +164,19 @@ std::vector<Grid_t> DiffusionGrid(const unsigned gridDim, const float d,
         std::vector<Grid_t>(nSnapshots, Grid_t(nRows, Row_t(gridDim)));
   }
   std::vector<MPI_Request> requests;
+  std::vector<int> colSizes;
+  std::vector<int> colOffsets;
+  // Generate gather parameters
+  if (colRank == 0) {
+    colOffsets.emplace_back(0);
+    for (int i = 0; i < nHorizontal; ++i) {
+      colSizes.emplace_back(gridDim * (i + 1) / mpiGrid.colMax() -
+                            gridDim * i / mpiGrid.colMax());
+      if (i > 0) {
+        colOffsets.emplace_back(colOffsets[i - 1] + colSizes[i] - 1);
+      }
+    }
+  }
   for (int s = 0; s < nSnapshots; ++s) {
     // Gather grid rows across columns in each row of MPI ranks
     for (int i = 0; i < nRows; ++i) {
@@ -172,7 +185,8 @@ std::vector<Grid_t> DiffusionGrid(const unsigned gridDim, const float d,
         target = rowSnapshots[s][i].begin();
       }
       mpi::Gather(localSnapshots[s][i + 1].begin() + 1,
-                  localSnapshots[s][i + 1].end() - 1, target, 0, colComm);
+                  localSnapshots[s][i + 1].end() - 1, target, colSizes,
+                  colOffsets, 0, colComm);
     }
     // Gather all rows in root rank
     if (colRank == 0) {

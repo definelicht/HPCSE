@@ -105,6 +105,24 @@ void Gather(SendIterator sendBegin, const SendIterator sendEnd,
              comm);
 }
 
+template <typename SendIterator, typename ReceiveIterator,
+          template <class, class> class ContainerType,
+          typename = CheckRandomAccess<SendIterator>,
+          typename = CheckRandomAccess<ReceiveIterator>>
+void Gather(SendIterator sendBegin, const SendIterator sendEnd,
+            ReceiveIterator receiveBegin,
+            ContainerType<int, std::allocator<int>> const &receiveSizes,
+            ContainerType<int, std::allocator<int>> const &receiveOffsets,
+            const int root, MPI_Comm comm = MPI_COMM_WORLD) {
+  using TSend = typename std::iterator_traits<SendIterator>::value_type;
+  using TReceive = typename std::iterator_traits<ReceiveIterator>::value_type;
+  static_assert(sizeof(TSend) == sizeof(TReceive),
+                "Send and receive types must be of equal size.");
+  MPI_Gatherv(&(*sendBegin), std::distance(sendBegin, sendEnd),
+              MpiType<TSend>::value(), &(*receiveBegin), receiveSizes.data(),
+              receiveOffsets.data(), MpiType<TReceive>::value(), root, comm);
+}
+
 inline MPI_Status Wait(MPI_Request &request) {
   MPI_Status status;
   MPI_Wait(&request, &status);
