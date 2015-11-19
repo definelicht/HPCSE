@@ -111,8 +111,8 @@ template <typename SendIterator, typename ReceiveIterator,
           typename = CheckRandomAccess<ReceiveIterator>>
 void Gather(SendIterator sendBegin, const SendIterator sendEnd,
             ReceiveIterator receiveBegin,
-            ContainerType<int, std::allocator<int>> const &receiveSizes,
-            ContainerType<int, std::allocator<int>> const &receiveOffsets,
+            ContainerType<int, std::allocator<int>> &receiveSizes,
+            ContainerType<int, std::allocator<int>> &receiveOffsets,
             const int root, MPI_Comm comm = MPI_COMM_WORLD) {
   using TSend = typename std::iterator_traits<SendIterator>::value_type;
   using TReceive = typename std::iterator_traits<ReceiveIterator>::value_type;
