@@ -55,16 +55,15 @@ inline int size() {
 }
 
 template <typename IteratorType, typename = CheckRandomAccess<IteratorType>>
-void Send(const IteratorType begin, const IteratorType end,
-          const int destination, const int tag = 0,
-          const MPI_Comm comm = MPI_COMM_WORLD) {
+void Send(IteratorType begin, const IteratorType end, const int destination,
+          const int tag = 0, const MPI_Comm comm = MPI_COMM_WORLD) {
   using T = typename std::iterator_traits<const IteratorType>::value_type;
   MPI_Send(&(*begin), std::distance(begin, end), MpiType<T>::value(),
            destination, tag, comm);
 }
 
 template <typename IteratorType, typename = CheckRandomAccess<IteratorType>>
-MPI_Request SendAsync(const IteratorType begin, const IteratorType end,
+MPI_Request SendAsync(IteratorType begin, const IteratorType end,
                       const int destination, const int tag = 0,
                       const MPI_Comm comm = MPI_COMM_WORLD) {
   using T = typename std::iterator_traits<const IteratorType>::value_type;
@@ -99,7 +98,7 @@ MPI_Request ReceiveAsync(IteratorType begin, const IteratorType end,
 template <typename SendIterator, typename ReceiveIterator,
           typename = CheckRandomAccess<SendIterator>,
           typename = CheckRandomAccess<ReceiveIterator>>
-void Gather(const SendIterator sendBegin, const SendIterator sendEnd,
+void Gather(SendIterator sendBegin, const SendIterator sendEnd,
             ReceiveIterator receiveBegin, const int root,
             const MPI_Comm comm = MPI_COMM_WORLD) {
   using TSend = typename std::iterator_traits<SendIterator>::value_type;

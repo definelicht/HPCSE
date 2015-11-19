@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cmath>
 #include "common/Timer.h"
 #include "common/Mpi.h"
