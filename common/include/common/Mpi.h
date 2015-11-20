@@ -4,6 +4,7 @@
 #include <iterator>
 #include <stdexcept>
 #include <mpi.h>
+#include "common/Common.h"
 
 namespace hpcse {
 
@@ -24,12 +25,6 @@ CPPUTILS_MPI_SENDBACKEND(char, MPI_CHAR);
 CPPUTILS_MPI_SENDBACKEND(float, MPI_FLOAT);
 CPPUTILS_MPI_SENDBACKEND(double, MPI_DOUBLE);
 #undef CPPUTILS_MPI_SENDBACKEND
-
-template <typename IteratorType>
-using CheckRandomAccess = typename std::enable_if<std::is_base_of<
-    std::random_access_iterator_tag,
-    typename std::iterator_traits<IteratorType>::iterator_category>::value>::
-    type;
 
 } // End anonymous namespace
 

@@ -1,0 +1,5 @@
+include_directories(include)
+include_directories(../common/include)
+set(LENNARDJONES_SRC src/LennardJones.cpp)
+add_library(lennardjones ${LENNARDJONES_SRC})
+target_link_libraries(lennardjones ${HPCSE_LIBS})
