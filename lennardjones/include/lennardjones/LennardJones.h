@@ -18,6 +18,9 @@ public:
   float Diff(ContainerItr x, ContainerItr xEnd, ContainerItr y,
              std::pair<float, float> const &newPos) const;
 
+  float DiffAutoVec(ContainerItr x, ContainerItr xEnd, ContainerItr y,
+                    std::pair<float, float> const &newPos) const;
+
 #ifdef __AVX__
   float DiffAvx(ContainerItr x, ContainerItr xEnd, ContainerItr y,
                 std::pair<float, float> const &newPos) const;

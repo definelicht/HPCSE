@@ -8,31 +8,39 @@ namespace hpcse {
 LennardJones::LennardJones(const float distMin, const float epsilon)
     : distMinSquared_(distMin * distMin), epsilon_(epsilon) {}
 
-__attribute__((optimize("no-tree-vectorize"))) float
-LennardJones::Diff(const ContainerItr x, const ContainerItr xEnd,
-                   const ContainerItr y,
-                   std::pair<float, float> const &newPos) const {
+namespace {
+#define HPCSE_LENNARDJONES_FUNCTION_NAME LennardJonesKernelScalar 
+#include "LennardJones.inl"
+#undef HPCSE_LENNARDJONES_FUNCTION_NAME
+#define HPCSE_LENNARDJONES_VECTORIZE
+#define HPCSE_LENNARDJONES_FUNCTION_NAME LennardJonesKernelAutoVec 
+#include "LennardJones.inl"
+#undef HPCSE_LENNARDJONES_VECTORIZE
+#undef HPCSE_LENNARDJONES_FUNCTION_NAME
+} // End anonymous namespace
 
-  const size_t n = std::distance(x, xEnd) - 1;
+float LennardJones::Diff(const ContainerItr x, const ContainerItr xEnd,
+                         const ContainerItr y,
+                         std::pair<float, float> const &newPos) const {
+  const float *xPtr = &x[0];
+  const float *yPtr = &y[0];
+  const int n = std::distance(x, xEnd) - 1;
+  const float newPosX = newPos.first;
+  const float newPosY = newPos.second;
+  return epsilon_ * LennardJonesKernelScalar(distMinSquared_, xPtr, yPtr, n,
+                                             newPosX, newPosY);
+}
 
-  float dE = 0.0;
-
-  #pragma clang loop vectorize(disable)
-  for (size_t i = 0; i < n; ++i) {
-    const float dx = x[n] - x[i];
-    const float dxNew = newPos.first - x[i];
-    const float dy = y[n] - y[i];
-    const float dyNew = newPos.second - y[i];
-    const float r0Squared = distMinSquared_ / (dx * dx + dy * dy);
-    const float r1Squared = distMinSquared_ / (dxNew * dxNew + dyNew * dyNew);
-    const float r0Sixth = r0Squared * r0Squared * r0Squared;
-    const float r1Sixth = r1Squared * r1Squared * r1Squared;
-
-    dE += epsilon_ * ((r1Sixth * r1Sixth - 2 * r1Sixth) -
-                      (r0Sixth * r0Sixth - 2 * r0Sixth));
-  }
-
-  return dE;
+float LennardJones::DiffAutoVec(const ContainerItr x, const ContainerItr xEnd,
+                                const ContainerItr y,
+                                std::pair<float, float> const &newPos) const {
+  const float *xPtr = &x[0];
+  const float *yPtr = &y[0];
+  const int n = std::distance(x, xEnd) - 1;
+  const float newPosX = newPos.first;
+  const float newPosY = newPos.second;
+  return epsilon_ * LennardJonesKernelAutoVec(distMinSquared_, xPtr, yPtr, n,
+                                              newPosX, newPosY);
 }
 
 #ifdef __AVX__

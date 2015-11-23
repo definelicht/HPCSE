@@ -1,5 +1,8 @@
 include_directories(include)
 include_directories(../common/include)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -funsafe-math-optimizations -funroll-loops") 
+endif()
 set(LENNARDJONES_SRC src/LennardJones.cpp)
 add_library(lennardjones ${LENNARDJONES_SRC})
 target_link_libraries(lennardjones ${HPCSE_LIBS})

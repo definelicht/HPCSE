@@ -32,11 +32,12 @@ int main(int argc, char *argv[]) {
 
   const auto newPos = std::make_pair<float>(particles.first[n - 1] + 0.01,
                                             particles.second[n - 1] + 0.01);
+  constexpr int nIterations = 100;
 
   Timer timer;
   timer.Start();
   float energyDiffScalar = 0;
-  for (int i = 0; i < 100; ++i) {
+  for (int i = 0; i < nIterations; ++i) {
     energyDiffScalar +=
         lennardJones.Diff(particles.first.cbegin(), particles.first.cend(),
                           particles.second.cbegin(), newPos);
@@ -45,17 +46,30 @@ int main(int argc, char *argv[]) {
   std::cout << "-- Scalar\n  Result: " << energyDiffScalar
             << "\n  Elapsed: " << elapsedScalar << "\n";
 
+  timer.Start();
+  float energyDiffAutoVec = 0;
+  for (int i = 0; i < nIterations; ++i) {
+    energyDiffAutoVec += lennardJones.DiffAutoVec(
+        particles.first.cbegin(), particles.first.cend(),
+        particles.second.cbegin(), newPos);
+  }
+  double elapsedAutoVec = timer.Stop();
+  std::cout << "-- Autovectorized\n  Result: " << energyDiffAutoVec
+            << "\n  Elapsed: " << elapsedAutoVec
+            << "\n  Speedup: " << elapsedScalar/elapsedAutoVec << "\n";
+
 #ifdef __AVX__ 
   float energyDiffAvx = 0;
   timer.Start();
-  for (int i = 0; i < 100; ++i) {
+  for (int i = 0; i < nIterations; ++i) {
     energyDiffAvx +=
         lennardJones.DiffAvx(particles.first.cbegin(), particles.first.cend(),
                              particles.second.cbegin(), newPos);
   }
   double elapsedAvx = timer.Stop();
   std::cout << "-- AVX\n  Result: " << energyDiffAvx
-            << "\n  Elapsed: " << elapsedAvx << "\n";
+            << "\n  Elapsed: " << elapsedAvx 
+            << "\n  Speedup: " << elapsedScalar/elapsedAvx << "\n";
 #endif
 
   return 0;
