@@ -4,6 +4,9 @@
 #include <iostream>
 #include "common/Timer.h"
 #include "immintrin.h"
+#ifdef HPCSE_USE_VC
+#include <Vc/Vc>
+#endif
 
 using namespace hpcse;
 
@@ -106,6 +109,30 @@ double AvxIntrinsics(const size_t iMax, const float source[], float target[]) {
 }
 #endif
 
+#ifdef HPCSE_USE_VC
+double VcLibrary(const size_t iMax, const float source[], float target[]) {
+  Timer timer;
+  for (size_t i = 0; i < iMax; ++i) {
+    for (size_t j = 0; j < elementsPerRun; j += Vc::float_v::Size) {
+      Vc::float_v s(source+j);
+      Vc::float_v t(target+j);
+      s += t;
+      s -= t;
+      s += t;
+      s -= t;
+      s += t;
+      s -= t;
+      s += t;
+      s -= t;
+      s += t;
+      s.store(target+j);
+    }
+  }
+  return timer.Stop();
+}
+#endif
+
+
 void VerifyOutput(const float expected, float const target[]) {
   for (size_t i = 0; i < elementsPerRun; ++i) {
     if (target[i] != expected) {
@@ -121,7 +148,7 @@ int main(int argc, char const *argv[]) {
     return 1;
   }
   const size_t iMax = std::stol(argv[1]);
-  double nFlops = 11*elementsPerRun*iMax;
+  double nFlops = 9*elementsPerRun*iMax;
   double nBytes = 3*sizeof(float)*elementsPerRun*iMax;
 
   // Align arrays for AVX
@@ -147,6 +174,7 @@ int main(int argc, char const *argv[]) {
   #ifdef HPCSE_PUSHFORROOF_ENABLE_AVX
   runBenchmark("AVX Intrinsics", AvxIntrinsics);
   #endif
+  runBenchmark("VC Library", VcLibrary);
 
   return 0;
 }
