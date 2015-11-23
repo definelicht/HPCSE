@@ -29,20 +29,28 @@ int main(int argc, char const *argv[]) {
   std::fill(y, y + elementsPerRun, 2);
 
   alignas(64) float zNaive[elementsPerRun];
+  std::cout << "Running naive implementation warmup... " << std::flush;
+  BinomialSquares(iMax, x, y, zNaive);
+  std::cout << "Done.\nRunning naive implementation benchmark... "
+            << std::flush;
   Timer timer;
   BinomialSquares(iMax, x, y, zNaive);
   double elapsedNaive = timer.Stop();
-  std::cout << "Naive finished in " << elapsedNaive << " seconds.\n";
+  std::cout << "Done in " << elapsedNaive << " seconds." << std::endl;
 
 #ifdef __AVX__
   alignas(64) float zAvx[elementsPerRun];
+  // Warmup run
+  std::cout << "Running AVX warmup... " << std::flush;
+  BinomialSquaresAvx(iMax, x, y, zAvx);
+  std::cout << "Done.\nRunning AVX benchmark... " << std::flush;
   timer.Start();
   BinomialSquaresAvx(iMax, x, y, zAvx);
   double elapsedAvx = timer.Stop();
   for (size_t i = 0; i < elementsPerRun; ++i) {
     assert(zNaive[i] == zAvx[i]);
   }
-  std::cout << "AVX finished in " << elapsedAvx << " seconds.\n"
+  std::cout << "Done in " << elapsedAvx << " seconds.\n"
             << "Speedup: " << elapsedNaive / elapsedAvx << ".\n";
 #endif
 
