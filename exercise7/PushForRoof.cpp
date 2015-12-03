@@ -168,13 +168,15 @@ int main(int argc, char const *argv[]) {
 
   runBenchmark("Vanilla", Vanilla);
   runBenchmark("Autovectorization", AutoVectorization);
-  #ifdef HPCSE_PUSHFORROOF_ENABLE_SSE
+#ifdef HPCSE_PUSHFORROOF_ENABLE_SSE
   runBenchmark("SSE Intrinsics", SseIntrinsics);
-  #endif
-  #ifdef HPCSE_PUSHFORROOF_ENABLE_AVX
+#endif
+#ifdef HPCSE_PUSHFORROOF_ENABLE_AVX
   runBenchmark("AVX Intrinsics", AvxIntrinsics);
-  #endif
+#endif
+#ifdef HPCSE_USE_VC
   runBenchmark("VC Library", VcLibrary);
+#endif
 
   return 0;
 }
