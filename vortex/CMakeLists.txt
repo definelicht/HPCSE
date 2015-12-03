@@ -1,0 +1,5 @@
+include_directories(include)
+include_directories(../common/include)
+set(VORTEX_SRC src/Vortex.cpp)
+add_library(vortex ${VORTEX_SRC})
+target_link_libraries(vortex ${HPCSE_LIBS})

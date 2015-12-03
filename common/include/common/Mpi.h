@@ -10,6 +10,13 @@ namespace hpcse {
 
 namespace mpi {
 
+enum class Op {
+  max,
+  min,
+  sum,
+  prod
+};
+
 namespace {
 
 template <typename T> struct MpiType;
@@ -17,7 +24,7 @@ template <typename T> struct MpiType;
 #define CPPUTILS_MPI_SENDBACKEND(TYPE, MPI_TYPE_NAME)                          \
   template <> struct MpiType<TYPE> {                                           \
     static MPI_Datatype value() { return MPI_TYPE_NAME; }                      \
-  }
+  };
 CPPUTILS_MPI_SENDBACKEND(int, MPI_INT);
 CPPUTILS_MPI_SENDBACKEND(unsigned, MPI_UNSIGNED);
 CPPUTILS_MPI_SENDBACKEND(long, MPI_LONG);
@@ -25,6 +32,18 @@ CPPUTILS_MPI_SENDBACKEND(char, MPI_CHAR);
 CPPUTILS_MPI_SENDBACKEND(float, MPI_FLOAT);
 CPPUTILS_MPI_SENDBACKEND(double, MPI_DOUBLE);
 #undef CPPUTILS_MPI_SENDBACKEND
+
+template <Op op> struct MpiOp;
+
+#define CPPUTILS_MPI_OP(OP, MPI_OP_NAME)                                       \
+  template <> struct MpiOp<OP> {                                               \
+    static MPI_Op value() { return MPI_OP_NAME; }                              \
+  };
+CPPUTILS_MPI_OP(Op::max, MPI_MAX);
+CPPUTILS_MPI_OP(Op::min, MPI_MIN);
+CPPUTILS_MPI_OP(Op::sum, MPI_SUM);
+CPPUTILS_MPI_OP(Op::prod, MPI_PROD);
+#undef CPPUTILS_MPI_OP
 
 } // End anonymous namespace
 
@@ -118,7 +137,52 @@ void Gather(SendIterator sendBegin, const SendIterator sendEnd,
               receiveOffsets.data(), MpiType<TReceive>::value(), root, comm);
 }
 
-inline MPI_Status Wait(MPI_Request &request) {
+template <typename SendIterator, typename ReceiveIterator,
+          typename = CheckRandomAccess<SendIterator>,
+          typename = CheckRandomAccess<ReceiveIterator>>
+void GatherAll(SendIterator sendBegin, const SendIterator sendEnd,
+               ReceiveIterator receiveBegin, MPI_Comm comm = MPI_COMM_WORLD) {
+  using TSend = typename std::iterator_traits<SendIterator>::value_type;
+  using TReceive = typename std::iterator_traits<ReceiveIterator>::value_type;
+  static_assert(sizeof(TSend) == sizeof(TReceive),
+                "Send and receive types must be of equal size.");
+  const int nElements = std::distance(sendBegin, sendEnd);
+  MPI_Allgather(&(*sendBegin), nElements, MpiType<TSend>::value(),
+                &(*receiveBegin), nElements, MpiType<TReceive>::value(), comm);
+}
+
+template <typename SendIterator, typename ReceiveIterator,
+          template <class, class> class ContainerType,
+          typename = CheckRandomAccess<SendIterator>,
+          typename = CheckRandomAccess<ReceiveIterator>>
+void GatherAll(SendIterator sendBegin, const SendIterator sendEnd,
+               ReceiveIterator receiveBegin,
+               ContainerType<int, std::allocator<int>> &receiveSizes,
+               ContainerType<int, std::allocator<int>> &receiveOffsets,
+               MPI_Comm comm = MPI_COMM_WORLD) {
+  using TSend = typename std::iterator_traits<SendIterator>::value_type;
+  using TReceive = typename std::iterator_traits<ReceiveIterator>::value_type;
+  static_assert(sizeof(TSend) == sizeof(TReceive),
+                "Send and receive types must be of equal size.");
+  MPI_Allgatherv(&(*sendBegin), std::distance(sendBegin, sendEnd),
+                 MpiType<TSend>::value(), &(*receiveBegin), receiveSizes.data(),
+                 receiveOffsets.data(), MpiType<TReceive>::value(), comm);
+}
+
+template <Op op, typename SendIterator, typename ReceiveIterator,
+          typename = CheckRandomAccess<SendIterator>,
+          typename = CheckRandomAccess<ReceiveIterator>>
+void Reduce(SendIterator sendBegin, const SendIterator sendEnd,
+            ReceiveIterator receiveBegin, const int root,
+            MPI_Comm comm = MPI_COMM_WORLD) {
+  MPI_Reduce(
+      &(*sendBegin), &(*receiveBegin), std::distance(sendBegin, sendEnd),
+      MpiType<typename std::iterator_traits<SendIterator>::value_type>::value(),
+      MpiOp<op>::value(), root, comm);
+}
+
+    inline MPI_Status
+    Wait(MPI_Request &request) {
   MPI_Status status;
   MPI_Wait(&request, &status);
   return status;
